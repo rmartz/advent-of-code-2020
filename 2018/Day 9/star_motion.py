@@ -11,13 +11,6 @@ def parse_line(line):
         raise Exception("Failed to parse line {}".format(line))
     return [regex[:2], regex[2:]]
 
-def chunk_seq(iterable, size):
-    it = iter(iterable)
-    item = list(islice(it, size))
-    while item:
-        yield item
-        item = list(islice(it, size))
-
 def calculate_minmax(vals):
     i = iter(vals)
 
@@ -51,7 +44,6 @@ def filter_bounding_box(lines, bounding_box):
     xbounds, ybounds = bounding_box
     return filter(in_bounds, lines)
 
-
 def calculate_positions(lines):
     bounding_box = calculate_bounds([v[0] for v in lines])
     last_n = []
@@ -74,8 +66,6 @@ def swallow_keyboard_interrupt(i):
             yield pos
     except KeyboardInterrupt:
         return
-
-
 
 def draw_starmap(positions, xbounds, ybounds):
     row_width = xbounds[1] - xbounds[0] + 1
