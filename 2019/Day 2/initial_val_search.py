@@ -32,16 +32,22 @@ def test_initial_state(intcode, noun, verb):
     return result[0]
 
 
-def counting_pairs():
-    i = 0
-    while True:
-        for j in range(i):
-            yield (j, i-j)
-        i += 1
+def counting_tuples(digits):
+    if digits <= 0:
+        yield tuple()
+        return
 
+    max_sum = 0
+    while True:
+        for subset in counting_tuples(digits - 1):
+            sub_sum = sum(subset)
+            if sub_sum > max_sum:
+                break
+            yield (max_sum - sub_sum,) + subset
+        max_sum += 1
 
 def search_for_initial_state(intcode, target_val):
-    for noun, verb in counting_pairs():
+    for noun, verb in counting_tuples(2):
         if test_initial_state(intcode[:], noun, verb) == target_val:
             return noun, verb
 
