@@ -3,6 +3,13 @@ CMD_MAX_SIZE=6
 MODE_IMMEDIATE='1'
 MODE_POSITION='0'
 
+
+class IncompleteExecutionError(Exception):
+    pass
+
+class HaltExecutionError(Exception):
+    pass
+
 class Intcode(object):
     _intcode = []
     intcode = []
@@ -24,7 +31,10 @@ class Intcode(object):
         self.intcode[pos] = val
 
     def next_input(self):
-        return next(self.input)
+        try:
+            return next(self.input)
+        except StopIteration:
+            raise IncompleteExecutionError()
 
     def add_output(self, val):
         self.output.append(val)
@@ -58,7 +68,7 @@ class Intcode(object):
             pos = 0
             while True:
                 pos = self.step(pos)
-        except StopIteration:
+        except HaltExecutionError:
             pass
 
         return self.output, self.intcode
@@ -165,7 +175,7 @@ class HaltOp(BaseOp):
     size = 0
 
     def perform_side_effect(self, intcode, vals):
-        raise StopIteration
+        raise HaltExecutionError
 
 
 
