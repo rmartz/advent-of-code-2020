@@ -32,16 +32,16 @@ def test_initial_state(intcode, noun, verb):
     return result[0]
 
 
-def diagonalize():
+def counting_pairs():
     i = 0
     while True:
         for j in range(i):
-            yield (i, j)
+            yield (j, i-j)
         i += 1
 
 
 def search_for_initial_state(intcode, target_val):
-    for noun, verb in diagonalize():
+    for noun, verb in counting_pairs():
         if test_initial_state(intcode[:], noun, verb) == target_val:
             return noun, verb
 
