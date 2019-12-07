@@ -35,6 +35,10 @@ class Intcode(object):
             '02': MultiplyOp,
             '03': InputOp,
             '04': OutputOp,
+            '05': JumpIfTrueOp,
+            '06': JumpIfFalseOp,
+            '07': LessThanOp,
+            '08': EqualsOp,
             '99': HaltOp
         }
         code = cmd[-2:]
@@ -76,15 +80,15 @@ class BaseOp(object):
             for index, mode in enumerate(flags, pos + 1)
         ]
 
-        self.process(intcode, vals)
+        return self.process(intcode, vals, pos)
 
-        return self.next_pos(pos)
+    def process(self, intcode, vals, pos):
+        self.perform_side_effect(intcode, vals)
 
-    def next_pos(self, pos):
         return pos + self.size + 1
 
-    def process(self, intcode, vals):
-        raise NotImplementedError()
+    def perform_side_effect(self, intcode, vals):
+        pass
 
 
 class WriteOp(BaseOp):
@@ -99,7 +103,7 @@ class WriteOp(BaseOp):
 class AddOp(WriteOp):
     size = 3
 
-    def process(self, intcode, vals):
+    def perform_side_effect(self, intcode, vals):
         valA, valB, dst = vals
         intcode.setval(dst, valA + valB)
 
@@ -107,29 +111,60 @@ class AddOp(WriteOp):
 class MultiplyOp(WriteOp):
     size = 3
 
-    def process(self, intcode, vals):
+    def perform_side_effect(self, intcode, vals):
         valA, valB, dst = vals
         intcode.setval(dst, valA * valB)
 
+class LessThanOp(WriteOp):
+    size = 3
+
+    def perform_side_effect(self, intcode, vals):
+        valA, valB, dst = vals
+
+        intcode.setval(dst, 1 if valA < valB else 0)
+
+class EqualsOp(WriteOp):
+    size = 3
+
+    def perform_side_effect(self, intcode, vals):
+        valA, valB, dst = vals
+
+        intcode.setval(dst, 1 if valA == valB else 0)
 
 class InputOp(WriteOp):
     size = 1
 
-    def process(self, intcode, vals):
+    def perform_side_effect(self, intcode, vals):
         dst = vals[0]
         intcode.setval(dst, intcode.next_input())
 
 class OutputOp(BaseOp):
     size = 1
 
-    def process(self, intcode, vals):
+    def perform_side_effect(self, intcode, vals):
         val = vals[0]
         intcode.add_output(val)
+
+class JumpIfTrueOp(BaseOp):
+    size = 2
+
+    def process(self, intcode, vals, pos):
+        if vals[0] != 0:
+            return vals[1]
+        return super().process(intcode, vals, pos)
+
+class JumpIfFalseOp(BaseOp):
+    size = 2
+
+    def process(self, intcode, vals, pos):
+        if vals[0] == 0:
+            return vals[1]
+        return super().process(intcode, vals, pos)
 
 class HaltOp(BaseOp):
     size = 0
 
-    def process(self, intcode, vals):
+    def perform_side_effect(self, intcode, vals):
         raise StopIteration
 
 
@@ -154,15 +189,47 @@ def test_negative():
     # Should halt
     machine.run_program([])
 
+def test_equal_pos():
+    machine = Intcode('3,9,8,9,10,9,4,9,99,-1,8')
+
+    output, _ = machine.run_program([8])
+    assert output == [1]
+
+    output, _ = machine.run_program([9])
+    assert output == [0]
+
+def test_less_than_pos():
+    machine = Intcode('3,9,7,9,10,9,4,9,99,-1,8')
+
+    output, _ = machine.run_program([8])
+    assert output == [0]
+
+    output, _ = machine.run_program([7])
+    assert output == [1]
+
+def test_equal_immediate():
+    machine = Intcode('3,3,1108,-1,8,3,4,3,99')
+
+    output, _ = machine.run_program([8])
+    assert output == [1]
+
+    output, _ = machine.run_program([9])
+    assert output == [0]
+
+def test_less_than_immediate():
+    machine = Intcode('3,3,1107,-1,8,3,4,3,99')
+
+    output, _ = machine.run_program([8])
+    assert output == [0]
+
+    output, _ = machine.run_program([7])
+    assert output == [1]
+
+
 test_multiply()
 test_input_output()
 test_negative()
-
-with open('data.txt', 'r') as fp:
-    machine = Intcode(fp.read())
-
-    output, _ = machine.run_program([1])
-    assert all(lambda v: v == 0 for v in output[:-1])
-    print(output[-1])
-
-
+test_equal_pos()
+test_less_than_pos()
+test_equal_immediate()
+test_less_than_immediate()
