@@ -12,11 +12,11 @@ TREE = '#'
 Vector = namedtuple("slope", ["x", "y"])
 
 
-def addVectors(a, b):
+def addVectors(a: Vector, b: Vector) -> Vector:
     return Vector(x=a.x + b.x, y=a.y + b.y)
 
 
-def lookupCell(grid, pos):
+def lookupCell(grid: Grid, pos: Vector) -> bool:
     # Maps repeat horizontally
     j = pos.x % grid.width
     # ...but not vertically
@@ -24,7 +24,7 @@ def lookupCell(grid, pos):
     return (i, j) in grid.cells
 
 
-def createGrid(input):
+def createGrid(input) -> Grid:
     cells = set()
     for i, row in enumerate(input):
         for j, cell in enumerate(row):
@@ -38,14 +38,14 @@ def createGrid(input):
     )
 
 
-def traverseGrid(grid: Grid, slope: Vector):
+def traverseGrid(grid: Grid, slope: Vector) -> iter:
     pos = Vector(x=0, y=0)
     while pos.y <= grid.height:
         yield lookupCell(grid, pos)
         pos = addVectors(pos, slope)
 
 
-def countTrees(grid, slopes):
+def countTrees(grid: Grid, slopes: list) -> iter:
     for slope in slopes:
         path = traverseGrid(grid, slope)
         yield sum(1 for tree in path if tree)
