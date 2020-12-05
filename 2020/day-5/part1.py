@@ -33,8 +33,8 @@ def GetSeatPos(seatcode):
     row_code = seatcode[0:7]
     col_code = seatcode[7:10]
     return SeatPos(
-        row=BinarySpaceLookup(row_code, 0, 127, 'B'),
-        col=BinarySpaceLookup(col_code, 0, 7, 'R'),
+        row=BinarySpaceLookup(row_code, 0, 127, "B"),
+        col=BinarySpaceLookup(col_code, 0, 7, "R"),
     )
 
 
@@ -42,15 +42,15 @@ def GetSeatId(seatpos: SeatPos):
     return seatpos.row * 8 + seatpos.col
 
 
-assert GetSeatPos('FBFBBFFRLR') == SeatPos(row=44, col=5)
+assert GetSeatPos("FBFBBFFRLR") == SeatPos(row=44, col=5)
 
-assert GetSeatPos('BFFFBBFRRR') == SeatPos(row=70, col=7)
+assert GetSeatPos("BFFFBBFRRR") == SeatPos(row=70, col=7)
 assert GetSeatId(SeatPos(row=70, col=7)) == 567
 
-assert GetSeatPos('FFFBBBFRRR') == SeatPos(row=14, col=7)
+assert GetSeatPos("FFFBBBFRRR") == SeatPos(row=14, col=7)
 assert GetSeatId(SeatPos(row=14, col=7)) == 119
 
-assert GetSeatPos('BBFFBBFRLL') == SeatPos(row=102, col=4)
+assert GetSeatPos("BBFFBBFRLL") == SeatPos(row=102, col=4)
 assert GetSeatId(SeatPos(row=102, col=4)) == 820
 
 with open("./data.txt", "r") as fp:
