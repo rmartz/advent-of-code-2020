@@ -2,6 +2,7 @@ from collections import namedtuple
 
 
 SeatPos = namedtuple("SeatPos", ["row", "col"])
+Statistics = namedtuple("Statistics", ["total", "max", "min"])
 
 
 class BinarySearch(object):
@@ -42,6 +43,24 @@ def GetSeatId(seatpos: SeatPos):
     return seatpos.row * 8 + seatpos.col
 
 
+def CollectStatistics(numbers):
+    low = high = total = next(numbers)
+    for n in numbers:
+        total += n
+        low = min(low, n)
+        high = max(high, n)
+
+    return Statistics(total=total, min=low, max=high)
+
+
+def TotalSequentialDigits(n):
+    return n * (n + 1) / 2
+
+
+def TotalSequentialDigitRange(low, high):
+    return TotalSequentialDigits(high) - TotalSequentialDigits(low - 1)
+
+
 assert GetSeatPos("FBFBBFFRLR") == SeatPos(row=44, col=5)
 
 assert GetSeatPos("BFFFBBFRRR") == SeatPos(row=70, col=7)
@@ -55,12 +74,9 @@ assert GetSeatId(SeatPos(row=102, col=4)) == 820
 
 with open("./data.txt", "r") as fp:
     seat_positions = (GetSeatPos(code) for code in fp.readlines())
-    ids = sorted(GetSeatId(pos) for pos in seat_positions)
+    ids = (GetSeatId(pos) for pos in seat_positions)
+    stats = CollectStatistics(ids)
 
-low = ids[0]
-high = ids[-1]
-
-expected_total = (high * (high + 1) / 2) - ((low - 1) * low / 2)
-real_total = sum(ids)
-seat = expected_total - real_total
+expected_total = TotalSequentialDigitRange(stats.min, stats.max)
+seat = expected_total - stats.total
 print(seat)
