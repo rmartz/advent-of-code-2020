@@ -3,7 +3,7 @@ from itertools import groupby
 
 def readGroups(data):
     data = (line.strip() for line in data)
-    return (group for _, group in groupby(data, lambda v: v == ""))
+    return (group for isBlank, group in groupby(data, lambda v: v == "") if not isBlank)
 
 
 def readAnswers(data):
