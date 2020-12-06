@@ -1,17 +1,15 @@
+from itertools import groupby
+
+
+def readGroups(data):
+    return ((v.strip() for v in group) for _, group in groupby(data, lambda v: v.strip() == ""))
 
 
 def readAnswers(data):
-    answers = None
-    for line in data:
-        line = line.strip()
-        if line == "":
-            yield answers
-            answers = None
-        elif answers is None:
-            answers = set(line)
-        else:
+    for group in readGroups(data):
+        answers = set(next(group))
+        for line in group:
             answers &= set(line)
-    if answers:
         yield answers
 
 
