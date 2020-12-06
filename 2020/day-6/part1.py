@@ -2,7 +2,10 @@ from itertools import groupby
 
 
 def readGroups(data):
-    return ((v.strip() for v in group) for _, group in groupby(data, lambda v: v.strip() == ""))
+    return (
+        (v.strip() for v in group)
+        for _, group in groupby(data, lambda v: v.strip() == "")
+    )
 
 
 def readAnswers(data):
