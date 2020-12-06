@@ -2,7 +2,7 @@ from collections import namedtuple
 
 
 Grid = namedtuple("grid", ["cells", "height", "width"])
-TREE = '#'
+TREE = "#"
 
 Vector = namedtuple("slope", ["x", "y"])
 
@@ -26,11 +26,7 @@ def createGrid(input) -> Grid:
             if cell == TREE:
                 cells.add((i, j))
 
-    return Grid(
-        cells=cells,
-        height=i,
-        width=j
-    )
+    return Grid(cells=cells, height=i, width=j)
 
 
 def traverseGrid(grid: Grid, slope: Vector) -> iter:
@@ -40,7 +36,7 @@ def traverseGrid(grid: Grid, slope: Vector) -> iter:
         pos = addVectors(pos, slope)
 
 
-with open('./data.txt', 'r') as fp:
+with open("./data.txt", "r") as fp:
     grid = createGrid(fp)
 
 slope = Vector(x=3, y=1)

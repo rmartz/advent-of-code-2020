@@ -1,5 +1,5 @@
 def find_sum(data, target):
-    high = len(data)-1
+    high = len(data) - 1
     low = 0
     while high >= low:
         high_val = data[high]
@@ -20,7 +20,7 @@ def find_sum(data, target):
     raise Exception("Target was not found")
 
 
-with open('./data.txt', 'r') as fp:
+with open("./data.txt", "r") as fp:
     data = sorted(int(line) for line in fp.readlines())
 
 high, low = find_sum(data, 2020)

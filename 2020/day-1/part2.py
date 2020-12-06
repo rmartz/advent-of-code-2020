@@ -13,7 +13,7 @@ def find_sum(data, count, target):
     raise Exception("No matching values were found")
 
 
-with open('./data.txt', 'r') as fp:
+with open("./data.txt", "r") as fp:
     data = [int(line) for line in fp.readlines()]
 
 values = find_sum(data, 3, 2020)

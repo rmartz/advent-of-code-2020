@@ -1,6 +1,7 @@
 def read_value(input):
     return int(next(input))
 
+
 def read_node(input):
     count_children = read_value(input)
     count_metadata = read_value(input)
@@ -14,7 +15,8 @@ def read_node(input):
 
     return total
 
-with open('data.txt', 'r') as fp:
-    data = fp.read().split(' ')
+
+with open("data.txt", "r") as fp:
+    data = fp.read().split(" ")
 
 print(read_node(iter(data)))

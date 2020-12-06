@@ -1,10 +1,11 @@
 from itertools import count
 
+
 def remove_at(value, index):
-    return value[:index] + value[index + 1:]
+    return value[:index] + value[index + 1 :]
 
 
-with open('data.txt','r') as fp:
+with open("data.txt", "r") as fp:
     ids = list(fp)
 
 for index in count():

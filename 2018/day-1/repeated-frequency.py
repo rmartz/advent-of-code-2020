@@ -1,4 +1,4 @@
-with open('data.txt', 'r') as fp:
+with open("data.txt", "r") as fp:
     values = list(int(row) for row in fp)
 
 sums = set()

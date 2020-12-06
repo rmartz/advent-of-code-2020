@@ -3,13 +3,18 @@ from collections import deque
 from itertools import islice
 import re
 
-line_regex = re.compile('position=< *(-?[0-9]+),  *(-?[0-9]+ *)> velocity=< *(-?[0-9]+), *(-?[0-9]+) *>')
+line_regex = re.compile(
+    "position=< *(-?[0-9]+),  *(-?[0-9]+ *)> velocity=< *(-?[0-9]+), *(-?[0-9]+) *>"
+)
+
+
 def parse_line(line):
     try:
         regex = map(int, line_regex.match(line).groups())
     except AttributeError:
         raise Exception("Failed to parse line {}".format(line))
     return [regex[:2], regex[2:]]
+
 
 def calculate_minmax(vals):
     i = iter(vals)
@@ -23,19 +28,19 @@ def calculate_minmax(vals):
             vmin = val
     return vmin, vmax
 
+
 def calculate_bounds(positions):
     xpositions = (v[0] for v in positions)
     ypositions = (v[1] for v in positions)
 
-    return (
-        calculate_minmax(xpositions),
-        calculate_minmax(ypositions)
-    )
+    return (calculate_minmax(xpositions), calculate_minmax(ypositions))
+
 
 def filter_bounding_box(lines, bounding_box):
     def within(val, bounds):
         min, max = bounds
         return val >= min and val <= max
+
     def in_bounds(line):
         pos, v = line
         x, y = pos
@@ -43,6 +48,7 @@ def filter_bounding_box(lines, bounding_box):
 
     xbounds, ybounds = bounding_box
     return filter(in_bounds, lines)
+
 
 def calculate_positions(lines):
     bounding_box = calculate_bounds([v[0] for v in lines])
@@ -60,12 +66,14 @@ def calculate_positions(lines):
 
         advance_tick(lines)
 
+
 def swallow_keyboard_interrupt(i):
     try:
         for v in i:
             yield v
     except KeyboardInterrupt:
         return
+
 
 def draw_starmap(positions, xbounds, ybounds):
     row_width = xbounds[1] - xbounds[0] + 1
@@ -89,10 +97,11 @@ def draw_starmap(positions, xbounds, ybounds):
         pos_map.add(pos)
 
     for y in xrange(num_cols):
-        row = ['#' if (x, y) in pos_map else ' ' for x in xrange(row_width)]
-        print ''.join(row)
-    print ''
-    print ''
+        row = ["#" if (x, y) in pos_map else " " for x in xrange(row_width)]
+        print "".join(row)
+    print ""
+    print ""
+
 
 def advance_tick(lines):
     for p, v in lines:
@@ -100,7 +109,7 @@ def advance_tick(lines):
         p[1] += v[1]
 
 
-with open('data.txt', 'r') as fp:
+with open("data.txt", "r") as fp:
     lines = map(parse_line, fp)
 
     positions = calculate_positions(lines)

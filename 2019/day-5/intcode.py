@@ -1,7 +1,8 @@
-CMD_MAX_SIZE=6
+CMD_MAX_SIZE = 6
 
-MODE_IMMEDIATE='1'
-MODE_POSITION='0'
+MODE_IMMEDIATE = "1"
+MODE_POSITION = "0"
+
 
 class Intcode(object):
     _intcode = []
@@ -10,7 +11,7 @@ class Intcode(object):
     output = []
 
     def __init__(self, intcode):
-        self._intcode = list(map(int, intcode.split(',')))
+        self._intcode = list(map(int, intcode.split(",")))
 
     def getval(self, pos, mode):
         if mode == MODE_IMMEDIATE:
@@ -31,15 +32,15 @@ class Intcode(object):
 
     def getop(self, cmd):
         opsmap = {
-            '01': AddOp,
-            '02': MultiplyOp,
-            '03': InputOp,
-            '04': OutputOp,
-            '05': JumpIfTrueOp,
-            '06': JumpIfFalseOp,
-            '07': LessThanOp,
-            '08': EqualsOp,
-            '99': HaltOp
+            "01": AddOp,
+            "02": MultiplyOp,
+            "03": InputOp,
+            "04": OutputOp,
+            "05": JumpIfTrueOp,
+            "06": JumpIfFalseOp,
+            "07": LessThanOp,
+            "08": EqualsOp,
+            "99": HaltOp,
         }
         code = cmd[-2:]
         return opsmap[code]()
@@ -70,14 +71,13 @@ class BaseOp(object):
 
     def get_flags(self, cmd):
         start = CMD_MAX_SIZE - 2 - self.size
-        return list(cmd[start:start+self.size])[::-1]
+        return list(cmd[start : start + self.size])[::-1]
 
     def execute_op(self, intcode, cmd, pos):
         flags = self.get_flags(cmd)
 
         vals = [
-            intcode.getval(index, mode)
-            for index, mode in enumerate(flags, pos + 1)
+            intcode.getval(index, mode) for index, mode in enumerate(flags, pos + 1)
         ]
 
         return self.process(intcode, vals, pos)
@@ -115,6 +115,7 @@ class MultiplyOp(WriteOp):
         valA, valB, dst = vals
         intcode.setval(dst, valA * valB)
 
+
 class LessThanOp(WriteOp):
     size = 3
 
@@ -122,6 +123,7 @@ class LessThanOp(WriteOp):
         valA, valB, dst = vals
 
         intcode.setval(dst, 1 if valA < valB else 0)
+
 
 class EqualsOp(WriteOp):
     size = 3
@@ -131,6 +133,7 @@ class EqualsOp(WriteOp):
 
         intcode.setval(dst, 1 if valA == valB else 0)
 
+
 class InputOp(WriteOp):
     size = 1
 
@@ -138,12 +141,14 @@ class InputOp(WriteOp):
         dst = vals[0]
         intcode.setval(dst, intcode.next_input())
 
+
 class OutputOp(BaseOp):
     size = 1
 
     def perform_side_effect(self, intcode, vals):
         val = vals[0]
         intcode.add_output(val)
+
 
 class JumpIfTrueOp(BaseOp):
     size = 2
@@ -153,6 +158,7 @@ class JumpIfTrueOp(BaseOp):
             return vals[1]
         return super().process(intcode, vals, pos)
 
+
 class JumpIfFalseOp(BaseOp):
     size = 2
 
@@ -161,6 +167,7 @@ class JumpIfFalseOp(BaseOp):
             return vals[1]
         return super().process(intcode, vals, pos)
 
+
 class HaltOp(BaseOp):
     size = 0
 
@@ -168,15 +175,15 @@ class HaltOp(BaseOp):
         raise StopIteration
 
 
-
 def test_multiply():
-    machine = Intcode('1002,4,3,4,33')
+    machine = Intcode("1002,4,3,4,33")
 
     # Should halt
     machine.run_program([])
 
+
 def test_input_output():
-    machine = Intcode('3,0,4,0,99')
+    machine = Intcode("3,0,4,0,99")
 
     # Should halt
     output, _ = machine.run_program([50])
@@ -184,13 +191,14 @@ def test_input_output():
 
 
 def test_negative():
-    machine = Intcode('1101,100,-1,4,0')
+    machine = Intcode("1101,100,-1,4,0")
 
     # Should halt
     machine.run_program([])
 
+
 def test_equal_pos():
-    machine = Intcode('3,9,8,9,10,9,4,9,99,-1,8')
+    machine = Intcode("3,9,8,9,10,9,4,9,99,-1,8")
 
     output, _ = machine.run_program([8])
     assert output == [1]
@@ -198,8 +206,9 @@ def test_equal_pos():
     output, _ = machine.run_program([9])
     assert output == [0]
 
+
 def test_less_than_pos():
-    machine = Intcode('3,9,7,9,10,9,4,9,99,-1,8')
+    machine = Intcode("3,9,7,9,10,9,4,9,99,-1,8")
 
     output, _ = machine.run_program([8])
     assert output == [0]
@@ -207,8 +216,9 @@ def test_less_than_pos():
     output, _ = machine.run_program([7])
     assert output == [1]
 
+
 def test_equal_immediate():
-    machine = Intcode('3,3,1108,-1,8,3,4,3,99')
+    machine = Intcode("3,3,1108,-1,8,3,4,3,99")
 
     output, _ = machine.run_program([8])
     assert output == [1]
@@ -216,8 +226,9 @@ def test_equal_immediate():
     output, _ = machine.run_program([9])
     assert output == [0]
 
+
 def test_less_than_immediate():
-    machine = Intcode('3,3,1107,-1,8,3,4,3,99')
+    machine = Intcode("3,3,1107,-1,8,3,4,3,99")
 
     output, _ = machine.run_program([8])
     assert output == [0]

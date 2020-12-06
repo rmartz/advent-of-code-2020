@@ -11,12 +11,7 @@ def get_wire_points(steps):
     def west(x, y, offset):
         return (x - offset, y)
 
-    directions = {
-        'U': north,
-        'D': south,
-        'R': east,
-        'L': west
-    }
+    directions = {"U": north, "D": south, "R": east, "L": west}
 
     x, y = (0, 0)
 
@@ -44,13 +39,11 @@ def get_distance_to_point(steps, target):
 
 
 def get_overlap_latency(wires, pos):
-    return sum(
-        get_distance_to_point(steps, pos) for steps in wires
-    )
+    return sum(get_distance_to_point(steps, pos) for steps in wires)
 
 
-with open('data.txt', 'r') as fp:
-    wires = [[parse_step(step) for step in line.split(',')] for line in fp]
+with open("data.txt", "r") as fp:
+    wires = [[parse_step(step) for step in line.split(",")] for line in fp]
 
     positions = (get_wire_points(steps) for steps in wires)
 

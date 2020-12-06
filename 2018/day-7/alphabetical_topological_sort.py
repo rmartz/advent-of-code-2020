@@ -8,7 +8,7 @@ def topological_sort(dependencies, all_steps):
                 break
 
 
-with open('data.txt', 'r') as fp:
+with open("data.txt", "r") as fp:
     records = [(row[5], row[36]) for row in fp]
 
 print(records)
@@ -24,4 +24,4 @@ for parent, child in records:
     dependencies[child].add(parent)
 print(dependencies)
 
-print(''.join(topological_sort(dependencies, all_steps)))
+print("".join(topological_sort(dependencies, all_steps)))

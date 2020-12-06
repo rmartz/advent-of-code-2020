@@ -7,7 +7,7 @@ def product(it):
 
 
 Grid = namedtuple("grid", ["cells", "height", "width"])
-TREE = '#'
+TREE = "#"
 
 Vector = namedtuple("slope", ["x", "y"])
 
@@ -31,11 +31,7 @@ def createGrid(input) -> Grid:
             if cell == TREE:
                 cells.add((i, j))
 
-    return Grid(
-        cells=cells,
-        height=i,
-        width=j
-    )
+    return Grid(cells=cells, height=i, width=j)
 
 
 def traverseGrid(grid: Grid, slope: Vector) -> iter:
@@ -51,7 +47,7 @@ def countTrees(grid: Grid, slopes: list) -> iter:
         yield sum(1 for tree in path if tree)
 
 
-with open('./data.txt', 'r') as fp:
+with open("./data.txt", "r") as fp:
     grid = createGrid(fp)
 
 slopes = [

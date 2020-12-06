@@ -3,6 +3,7 @@ from functools import lru_cache
 
 relationships = {}
 
+
 def list_ancestors(id):
     while True:
         try:
@@ -22,9 +23,9 @@ def count_transfers(src, dst):
     return len(src_ancestors) + len(dst_ancestors) - 2 * len(common_ancestors)
 
 
-with open('data.txt', 'r') as fp:
-    orbit_pairs = (line.strip().split(')') for line in fp)
+with open("data.txt", "r") as fp:
+    orbit_pairs = (line.strip().split(")") for line in fp)
     for target, satelite in orbit_pairs:
         relationships[satelite] = target
 
-    print(count_transfers('YOU', 'SAN'))
+    print(count_transfers("YOU", "SAN"))

@@ -1,7 +1,8 @@
 from itertools import groupby
 import re
 
-increasing_regex = re.compile(r'^1*2*3*4*5*6*7*8*9*$')
+increasing_regex = re.compile(r"^1*2*3*4*5*6*7*8*9*$")
+
 
 def check_explicit_pair(c):
     group_lengths = (sum(1 for v in vals) for char, vals in groupby(c))
@@ -10,7 +11,7 @@ def check_explicit_pair(c):
 
 def count_combinations(start, end):
     # Build a sequence of all values in range, as strings
-    vals = range(start, end+1)
+    vals = range(start, end + 1)
     combinations = map(str, vals)
 
     # Enforce increasing values
@@ -30,9 +31,8 @@ assert count_combinations(123444, 123444) == 0
 assert count_combinations(124444, 124444) == 0
 assert count_combinations(111122, 111122) == 1
 
-with open('data.txt', 'r') as fp:
-    start, end = map(int, fp.readline().split('-'))
-    print(start,end)
+with open("data.txt", "r") as fp:
+    start, end = map(int, fp.readline().split("-"))
+    print(start, end)
 
 print(count_combinations(start, end))
-

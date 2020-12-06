@@ -1,8 +1,8 @@
 CMD_MAX_SIZE = 6
 
-MODE_IMMEDIATE = '1'
-MODE_RELATIVE = '2'
-MODE_POSITION = '0'
+MODE_IMMEDIATE = "1"
+MODE_RELATIVE = "2"
+MODE_POSITION = "0"
 
 
 class IncompleteExecutionError(Exception):
@@ -21,7 +21,7 @@ class Intcode(object):
     relative_base = 0
 
     def __init__(self, intcode):
-        self._intcode = list(map(int, intcode.split(',')))
+        self._intcode = list(map(int, intcode.split(",")))
 
     def get_target_pos(self, pos, mode):
         if mode == MODE_IMMEDIATE:
@@ -49,7 +49,7 @@ class Intcode(object):
             self.intcode[pos] = val
         except IndexError:
             growth = (pos - len(self.intcode)) + 1
-            self.intcode.extend([0]*growth)
+            self.intcode.extend([0] * growth)
             self.intcode[pos] = val
 
     def adjust_relative_base(self, offset):
@@ -66,16 +66,16 @@ class Intcode(object):
 
     def getop(self, cmd):
         opsmap = {
-            '01': AddOp,
-            '02': MultiplyOp,
-            '03': InputOp,
-            '04': OutputOp,
-            '05': JumpIfTrueOp,
-            '06': JumpIfFalseOp,
-            '07': LessThanOp,
-            '08': EqualsOp,
-            '09': RelativeBaseOp,
-            '99': HaltOp
+            "01": AddOp,
+            "02": MultiplyOp,
+            "03": InputOp,
+            "04": OutputOp,
+            "05": JumpIfTrueOp,
+            "06": JumpIfFalseOp,
+            "07": LessThanOp,
+            "08": EqualsOp,
+            "09": RelativeBaseOp,
+            "99": HaltOp,
         }
         code = cmd[-2:]
         return opsmap[code]()
@@ -110,7 +110,7 @@ class BaseOp(object):
 
     def get_flags(self, cmd):
         start = CMD_MAX_SIZE - 2 - self.size
-        return list(cmd[start:start+self.size])[::-1]
+        return list(cmd[start : start + self.size])[::-1]
 
     def execute_op(self, intcode, cmd, pos):
         flags = self.get_flags(cmd)
@@ -130,11 +130,7 @@ class BaseOp(object):
 
 class WriteOp(BaseOp):
     def perform_side_effect(self, intcode, params):
-        vals = [
-            intcode.getval(pos, mode)
-            for (pos, mode) in
-            params[:self.size - 1]
-        ]
+        vals = [intcode.getval(pos, mode) for (pos, mode) in params[: self.size - 1]]
 
         value = self.calculate(intcode, vals)
 
@@ -198,11 +194,7 @@ class JumpIfTrueOp(BaseOp):
     size = 2
 
     def process(self, intcode, params, pos):
-        vals = [
-            intcode.getval(pos, mode)
-            for (pos, mode) in
-            params
-        ]
+        vals = [intcode.getval(pos, mode) for (pos, mode) in params]
 
         if vals[0] != 0:
             return vals[1]
@@ -213,11 +205,7 @@ class JumpIfFalseOp(BaseOp):
     size = 2
 
     def process(self, intcode, params, pos):
-        vals = [
-            intcode.getval(pos, mode)
-            for (pos, mode) in
-            params
-        ]
+        vals = [intcode.getval(pos, mode) for (pos, mode) in params]
 
         if vals[0] == 0:
             return vals[1]
@@ -242,56 +230,56 @@ class HaltOp(BaseOp):
 
 
 def test_execution_1():
-    machine = Intcode('1,0,0,3,99')
+    machine = Intcode("1,0,0,3,99")
 
     # Should halt
     machine.run_program([])
 
 
 def test_execution_2():
-    machine = Intcode('1,9,10,3,2,3,11,0,99,30,40,50')
+    machine = Intcode("1,9,10,3,2,3,11,0,99,30,40,50")
 
     # Should halt
     machine.run_program([])
 
 
 def test_execution_3():
-    machine = Intcode('1,0,0,0,99')
+    machine = Intcode("1,0,0,0,99")
 
     _, intcode = machine.run_program([])
     assert intcode == [2, 0, 0, 0, 99]
 
 
 def test_execution_4():
-    machine = Intcode('2,3,0,3,99')
+    machine = Intcode("2,3,0,3,99")
 
     _, intcode = machine.run_program([])
     assert intcode == [2, 3, 0, 6, 99]
 
 
 def test_execution_5():
-    machine = Intcode('2,4,4,5,99,0')
+    machine = Intcode("2,4,4,5,99,0")
 
     _, intcode = machine.run_program([])
     assert intcode == [2, 4, 4, 5, 99, 9801]
 
 
 def test_execution_6():
-    machine = Intcode('1,1,1,4,99,5,6,0,99')
+    machine = Intcode("1,1,1,4,99,5,6,0,99")
 
     _, intcode = machine.run_program([])
     assert intcode == [30, 1, 1, 4, 2, 5, 6, 0, 99]
 
 
 def test_multiply():
-    machine = Intcode('1002,4,3,4,33')
+    machine = Intcode("1002,4,3,4,33")
 
     # Should halt
     machine.run_program([])
 
 
 def test_input_output():
-    machine = Intcode('3,0,4,0,99')
+    machine = Intcode("3,0,4,0,99")
 
     # Should halt
     output, _ = machine.run_program([50])
@@ -299,14 +287,14 @@ def test_input_output():
 
 
 def test_negative():
-    machine = Intcode('1101,100,-1,4,0')
+    machine = Intcode("1101,100,-1,4,0")
 
     # Should halt
     machine.run_program([])
 
 
 def test_equal_pos():
-    machine = Intcode('3,9,8,9,10,9,4,9,99,-1,8')
+    machine = Intcode("3,9,8,9,10,9,4,9,99,-1,8")
 
     output, _ = machine.run_program([8])
     assert output == [1]
@@ -316,7 +304,7 @@ def test_equal_pos():
 
 
 def test_less_than_pos():
-    machine = Intcode('3,9,7,9,10,9,4,9,99,-1,8')
+    machine = Intcode("3,9,7,9,10,9,4,9,99,-1,8")
 
     output, _ = machine.run_program([8])
     assert output == [0]
@@ -326,7 +314,7 @@ def test_less_than_pos():
 
 
 def test_equal_immediate():
-    machine = Intcode('3,3,1108,-1,8,3,4,3,99')
+    machine = Intcode("3,3,1108,-1,8,3,4,3,99")
 
     output, _ = machine.run_program([8])
     assert output == [1]
@@ -336,7 +324,7 @@ def test_equal_immediate():
 
 
 def test_less_than_immediate():
-    machine = Intcode('3,3,1107,-1,8,3,4,3,99')
+    machine = Intcode("3,3,1107,-1,8,3,4,3,99")
 
     output, _ = machine.run_program([8])
     assert output == [0]
@@ -346,7 +334,7 @@ def test_less_than_immediate():
 
 
 def test_quine():
-    quine = '109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99'
+    quine = "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99"
     machine = Intcode(quine)
 
     output, _ = machine.run_program([])
@@ -354,14 +342,14 @@ def test_quine():
 
 
 def test_large_output_1():
-    machine = Intcode('1102,34915192,34915192,7,4,7,99,0')
+    machine = Intcode("1102,34915192,34915192,7,4,7,99,0")
 
     output, _ = machine.run_program([])
     assert output == [1219070632396864]
 
 
 def test_large_output_2():
-    machine = Intcode('104,1125899906842624,99')
+    machine = Intcode("104,1125899906842624,99")
 
     output, _ = machine.run_program([])
     assert output == [1125899906842624]

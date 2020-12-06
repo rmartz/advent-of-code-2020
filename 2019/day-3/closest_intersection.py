@@ -11,12 +11,7 @@ def get_wire_points(steps):
     def west(x, y, offset):
         return (x - offset, y)
 
-    directions = {
-        'U': north,
-        'D': south,
-        'R': east,
-        'L': west
-    }
+    directions = {"U": north, "D": south, "R": east, "L": west}
 
     x, y = (0, 0)
 
@@ -41,8 +36,8 @@ def parse_step(step):
     return step[0], int(step[1:])
 
 
-with open('data.txt', 'r') as fp:
-    wires = (map(parse_step, line.split(',')) for line in fp)
+with open("data.txt", "r") as fp:
+    wires = (map(parse_step, line.split(",")) for line in fp)
 
     positions = (get_wire_points(steps) for steps in wires)
 

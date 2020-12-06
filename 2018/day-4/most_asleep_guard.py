@@ -3,7 +3,9 @@ from operator import itemgetter
 from itertools import groupby
 import re
 
-guard_shift_re = re.compile('.*Guard #(\d+) begins shift')
+guard_shift_re = re.compile(".*Guard #(\d+) begins shift")
+
+
 def guard_tracker(records):
     guard = None
     for record in records:
@@ -11,6 +13,7 @@ def guard_tracker(records):
         if shift_check:
             guard = int(shift_check.group(1))
         yield (guard, record)
+
 
 def guard_intervals(shifts):
     print(shifts)
@@ -23,11 +26,12 @@ def guard_intervals(shifts):
             prev = cur
             awake = not awake
 
+
 def record_minutes(time):
     return int(time[14:16])
 
 
-with open('data.txt', 'r') as fp:
+with open("data.txt", "r") as fp:
     records = sorted(fp)
 
 
@@ -38,7 +42,7 @@ for guard, records in groupby(guard_tracker(records), itemgetter(0)):
 
 sleepiest_guard = (0, (0, 0))
 for guard, records in guard_records.items():
-    print('-----')
+    print("-----")
     intervals = guard_intervals(records)
     sleeping_times = [interval for interval, awake in intervals if not awake]
     if not sleeping_times:
