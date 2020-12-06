@@ -2,10 +2,8 @@ from itertools import groupby
 
 
 def readGroups(data):
-    return (
-        (v.strip() for v in group)
-        for _, group in groupby(data, lambda v: v.strip() == "")
-    )
+    data = (line.strip() for line in data)
+    return (group for _, group in groupby(data, lambda v: v == ""))
 
 
 def readAnswers(data):
