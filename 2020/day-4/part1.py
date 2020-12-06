@@ -1,18 +1,20 @@
+from itertools import groupby
+
 REQUIRED_KEYS = set(["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"])
 
 ALLOWED_KEYS = REQUIRED_KEYS | set(["cid"])
 
 
+def readGroups(data):
+    data = (line.strip() for line in data)
+    return (group for blank, group in groupby(data, lambda v: v == "") if not blank)
+
+
 def readPassports(data):
-    passport = dict()
-    for line in data:
-        line = line.strip()
-        if line == "":
-            yield passport
-            passport = dict()
-        else:
+    for group in readGroups(data):
+        passport = dict()
+        for line in group:
             passport.update(value.split(":") for value in line.split(" "))
-    if passport:
         yield passport
 
 

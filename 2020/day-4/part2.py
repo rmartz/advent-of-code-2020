@@ -1,3 +1,4 @@
+from itertools import groupby
 import re
 
 
@@ -9,16 +10,16 @@ def between(val, min, max):
     return val >= min and val <= max
 
 
+def readGroups(data):
+    data = (line.strip() for line in data)
+    return (group for blank, group in groupby(data, lambda v: v == "") if not blank)
+
+
 def readPassports(data):
-    passport = dict()
-    for line in data:
-        line = line.strip()
-        if line == "":
-            yield passport
-            passport = dict()
-        else:
+    for group in readGroups(data):
+        passport = dict()
+        for line in group:
             passport.update(value.split(":") for value in line.split(" "))
-    if passport:
         yield passport
 
 
