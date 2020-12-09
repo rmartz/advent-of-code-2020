@@ -1,0 +1,63 @@
+import itertools
+
+
+def history(seq, max_size):
+    it = iter(seq)
+    prev = []
+    # prev is growing until we reach max_size items, we can just append each item
+    for val in itertools.islice(it, max_size):
+        yield prev, val
+        prev.append(val)
+
+    # Now that prev has max_size items in it, pop an item before adding the next
+    for val in it:
+        yield prev, val
+        prev.pop(0)
+        prev.append(val)
+
+
+def find_sum(data, target):
+    high = len(data) - 1
+    low = 0
+    while high >= low:
+        high_val = data[high]
+        low_val = data[low]
+        total = high_val + low_val
+        if total == target:
+            return high_val, low_val
+        elif total < target:
+            # Need to increase the total
+            # Because every low number can pair with exactly one high number,
+            # if the value is too low then there is no matching high number
+            low += 1
+        else:
+            # Need to decrease the total
+            # Similarly, if the value is too high then there is no matching
+            #  low number. Use the next high to see how it fairs
+            high -= 1
+    raise Exception("Target was not found")
+
+
+def find_invalid(stream, lookback_len, preamble_len):
+    # Keep the previous lookback as we iterate through
+    stream = history(vals, lookback_len)
+
+    # Truncate the preamble since we are not validating that
+    stream = itertools.islice(stream, preamble_len, None)
+
+    for prev, target in stream:
+        data = sorted(prev)
+        try:
+            find_sum(data, target)
+        except Exception:
+            # No two numbers in the previous
+            return target
+
+
+PREAMBLE_LEN = 25
+LOOKBACK_LEN = 25
+
+with open("./data.txt", "r") as fp:
+    vals = (int(val) for val in fp)
+    print(find_invalid(vals, PREAMBLE_LEN, LOOKBACK_LEN))
+
