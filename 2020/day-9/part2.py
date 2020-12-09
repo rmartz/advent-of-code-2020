@@ -108,11 +108,16 @@ def find_min_max(numbers):
     return (low, high)
 
 
-TARGET = 1930745883
+PREAMBLE_LEN = 25
+LOOKBACK_LEN = 25
 
 with open("./data.txt", "r") as fp:
     vals = (int(val) for val in fp)
-    contiguous_set = find_contiguous_set_with_sum(vals, TARGET)
+    target = find_invalid(vals, LOOKBACK_LEN, PREAMBLE_LEN)
+
+with open("./data.txt", "r") as fp:
+    vals = (int(val) for val in fp)
+    contiguous_set = find_contiguous_set_with_sum(vals, target)
     min_max = find_min_max(contiguous_set)
 
     print(sum(min_max))
