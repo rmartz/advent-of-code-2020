@@ -121,4 +121,3 @@ with open("./data.txt", "r") as fp:
     min_max = find_min_max(contiguous_set)
 
     print(sum(min_max))
-
