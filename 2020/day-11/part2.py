@@ -14,7 +14,9 @@ def count(start=0, step=1):
         i += step
 
 
-ADJACENCIES = [Vector(x=x, y=y) for x in [-1, 0, 1] for y in [-1, 0, 1] if x != 0 or y != 0]
+ADJACENCIES = [
+    Vector(x=x, y=y) for x in [-1, 0, 1] for y in [-1, 0, 1] if x != 0 or y != 0
+]
 
 max_x = None
 max_y = None
@@ -72,9 +74,9 @@ def load_grid(lines):
     max_y = None
     for y, line in enumerate(lines):
         for x, c in enumerate(line.strip()):
-            if c != '.':
+            if c != ".":
                 seat = Vector(x=x, y=y)
-                grid[seat] = (c == '#')
+                grid[seat] = c == "#"
                 if max_x is None or max_x < x:
                     max_x = x
                 if max_y is None or max_y < y:
@@ -84,20 +86,20 @@ def load_grid(lines):
 
 def blank_grid(width, height):
     def blank_row():
-        return ['.'] * width
+        return ["."] * width
 
     for x in range(height):
         yield list(blank_row())
 
 
 def print_grid(grid):
-    cells = list(blank_grid(max_x+1, max_y +1))
+    cells = list(blank_grid(max_x + 1, max_y + 1))
     for seat, isOccupied in grid.items():
-        cells[seat.y][seat.x] = '#' if isOccupied else 'L'
+        cells[seat.y][seat.x] = "#" if isOccupied else "L"
 
     print("")
     for line in cells:
-        print(''.join(line))
+        print("".join(line))
 
 
 def test1():
@@ -110,7 +112,9 @@ def test1():
 .........
 #........
 ...#.....
-""".split("\n")
+""".split(
+        "\n"
+    )
     grid = load_grid(lines)
     print_grid(grid)
     visible_occupied_seats = get_occupied_neighbor_count(grid, Vector(x=3, y=4))
@@ -126,7 +130,9 @@ def test2():
 ##...##
 #.#.#.#
 .##.##.
-""".split("\n")
+""".split(
+        "\n"
+    )
     grid = load_grid(lines)
     print_grid(grid)
     visible_occupied_seats = get_occupied_neighbor_count(grid, Vector(x=3, y=3))
@@ -134,8 +140,8 @@ def test2():
     assert visible_occupied_seats == 0
 
 
-#test1()
-#test2()
+# test1()
+# test2()
 
 with open("./data.txt", "r") as fp:
     grid = load_grid(fp)
