@@ -1,7 +1,7 @@
 from functools import reduce
 from collections import namedtuple, Counter, defaultdict
 from itertools import chain
-from math import ceil
+from math import ceil, gcd
 
 BusSchedule = namedtuple("BusSchedule", ['offset', 'interval'])
 
@@ -22,12 +22,13 @@ def count(start=0, step=1):
         i += step
 
 
-def wait_next_arrival(time, schedule):
-    return (schedule - (time % schedule)) % schedule
-
-
 def product(it):
     return reduce(lambda val, acc: val * acc, it, 1)
+
+
+def history(items):
+    for i, val in enumerate(items):
+        yield items[:i], val
 
 
 def lcm(nums):
@@ -42,47 +43,58 @@ def lcm(nums):
     return product(p ** count for p, count in factors.items())
 
 
-def next_aligned_time(schedule, cycle_repeat, alignment, start=0):
-    # Make sure start is alligned with this schedule
+def is_schedule_aligned(schedule, t, alignment):
+    return (t + schedule.offset) % schedule.interval == 0
+
+
+def next_aligned_time(schedule, alignment, start=0):
+    # Make sure start is aligned with this schedule
     start = int(ceil(start / schedule.interval)) * schedule.interval
-    for t in range(start, cycle_repeat+1, schedule.interval):
-        if t % alignment == schedule.offset % alignment:
+    for t in count(start=start, step=schedule.interval):
+        if is_schedule_aligned(schedule, t, alignment):
             return t - schedule.offset
 
 
-def it_intersection(sets):
-    it = iter(sets)
-    intersection = set(next(it))
-    for s in it:
-        intersection &= set(s)
-    return intersection
+def find_next_alignment(target, start, step, alignment):
+    if gcd(step, target.interval) != 1:
+        raise Exception("Intervals are not relatively prime")
+    if target.interval > step:
+        step *= int(ceil(target.interval / step))
+    if target.interval > step:
+        raise Exception("Step is not sufficiently large")
+    for t in range(start, start + step * (target.interval + 1) + 1, step):
+        if is_schedule_aligned(target, t, alignment):
+            return t
+    else:
+        raise Exception("No solution found")
 
 
 def find_soonest_alignment(ids):
-    schedules = [BusSchedule(offset=offset, interval=int(interval)) for offset, interval in enumerate(ids) if interval != 'x']
-
-    cycle_length = lcm(schedule.interval for schedule in schedules)
+    schedules = [
+        BusSchedule(offset=offset, interval=int(interval))
+        for offset, interval in enumerate(ids)
+        if interval != 'x'
+    ]
 
     alignment = schedules[0].interval
 
-    # Store a dictionary of each schedule and the next aligned time that could be shared by all
-    next_alignments = {
-        schedule: next_aligned_time(schedule, cycle_length, alignment, 0)
-        for schedule in schedules
-    }
+    # The solution requires all buses to be aligned with their offset
+    # Find buses that are aligned, and increment such that they will remain aligned
+    #   while we attempt to align with more buses.
+    # Start with the slowest bus, and increment by that bus's interval
+    # If a 60 minute bus with offset 10 works at 70 minutes, and also at 130 minutes
+    # When we align with other buses, we step by the LCM of all found bus intervals
+    # e.g., if a 6 minute and 9 minute bus are aligned, they will be aligned again
+    #   exactly every 18 minutes
+    t = 0
 
-    # Find the soonest and latest possible alignments, and jump the soonest alignment to the next
-    # time that happens at or after the current latest alignment
-    # Eventually all schedules should share the same soonest alignment
-    soonest_alignment = 0
-    while soonest_alignment < cycle_length:
-        soonest_schedule, soonest_alignment = min(next_alignments.items(), key=lambda pair: pair[1])
-        latest = max(next_alignments.values())
-        if soonest_alignment < latest:
-            next_alignments[soonest_schedule] = next_aligned_time(soonest_schedule, cycle_length, alignment, latest)
-        else:
-            return soonest_alignment
-    raise Exception("No solution found")
+    for fits, target in history(schedules):
+        step = lcm(schedule.interval for schedule in fits)
+        t = t % step
+
+        t = find_next_alignment(target, t, step, alignment)
+
+    return t
 
 
 assert lcm([3, 9]) == 9
