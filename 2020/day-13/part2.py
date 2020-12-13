@@ -22,7 +22,7 @@ def count(start=0, step=1):
 
 
 def wait_next_arrival(time, schedule):
-    return schedule - (time % schedule)
+    return (schedule - (time % schedule)) % schedule
 
 
 def product(it):
@@ -41,11 +41,10 @@ def lcm(nums):
     return product(p ** count for p, count in factors.items())
 
 
-def buses_arrive_on_consecutive_minutes(t, schedules):
-    for schedule in schedules:
-        wait_until = wait_next_arrival(t, schedule.interval)
-        if wait_until == schedule.offset:
-            yield schedule
+def aligned_times(schedule, cycle_repeat, alignment):
+    for t in range(0, cycle_repeat+1, schedule.interval):
+        if (schedule.interval - (t % alignment)) % schedule.interval == schedule.offset:
+            yield t
 
 
 def it_intersection(sets):
@@ -70,8 +69,10 @@ schedules = [BusSchedule(offset=offset, interval=int(interval)) for offset, inte
 
 cycle_length = lcm(schedule.interval for schedule in schedules)
 
-t_options = range(0, cycle_length + 1, schedules[0].interval)
 
-moments = (
-    (match - schedule.offset for match in (set(v + schedule.offset for v in t_options) & set(range(0, cycle_length + 1, schedule.interval)))) for schedule in schedules)
-print(min(it_intersection(moments)))
+alignment = schedules[0].interval
+
+for moment in range(0, cycle_length+1, alignment):
+    if all(wait_next_arrival(moment, schedule.interval) == schedule.offset for schedule in schedules):
+        print(moment)
+        break
