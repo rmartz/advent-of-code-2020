@@ -1,7 +1,7 @@
 from functools import reduce
 from collections import namedtuple, Counter, defaultdict
 from itertools import chain
-from math import ceil, gcd
+from math import gcd
 
 BusSchedule = namedtuple("BusSchedule", ["offset", "interval"])
 
@@ -78,7 +78,6 @@ def find_soonest_alignment(ids):
 
     for fits, target in history(schedules):
         step = lcm(schedule.interval for schedule in fits)
-        t = t % step
 
         t = find_next_alignment(target, t, step, alignment)
 
