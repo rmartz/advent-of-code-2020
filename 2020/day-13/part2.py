@@ -48,6 +48,14 @@ def buses_arrive_on_consecutive_minutes(t, schedules):
             yield schedule
 
 
+def it_intersection(sets):
+    it = iter(sets)
+    intersection = set(next(it))
+    for s in it:
+        intersection &= set(s)
+    return intersection
+
+
 assert lcm([3, 9]) == 9
 assert lcm([3, 5]) == 15
 assert lcm([4, 78, 43, 13, 8, 25]) == 335400
@@ -58,37 +66,12 @@ with open("./data.txt", "r") as fp:
 
 ids = bus_ids.split(',')
 
-schedules = set(BusSchedule(offset=offset, interval=int(interval)) for offset, interval in enumerate(ids) if interval != 'x')
+schedules = [BusSchedule(offset=offset, interval=int(interval)) for offset, interval in enumerate(ids) if interval != 'x']
 
-slowest = min(schedules, key=lambda schedule: schedule.interval)
+cycle_length = lcm(schedule.interval for schedule in schedules)
 
-# The solution requires all buses to be aligned with their offset
-# Find buses that are aligned, and increment such that they will remain aligned while
-#   we attempt to align with more buses.
-# Start with the slowest bus, and increment by that bus's interval
-# If a 60 minute bus with offset 10 works at 70 minutes, and also at 130 minutes
-# When we align with other buses, we step by the LCM of all found bus intervals
-# e.g., if a 60 minute and 90 minute bus are aligned, they will be aligned precisely once every 180 minutes
-t = slowest.offset
-step = slowest.interval
-fits = set([slowest])
-remainder = schedules - fits
-cycle_loop = lcm(schedule.interval for schedule in schedules)
+t_options = range(0, cycle_length + 1, schedules[0].interval)
 
-while remainder:
-    if t > cycle_loop * max(schedule.interval for schedule in remainder) * 1000:
-        raise Exception("No solution found")
-    t += step
-
-    new_fits = set(buses_arrive_on_consecutive_minutes(t, remainder))
-    if new_fits:
-        fits |= new_fits
-        remainder -= new_fits
-        print(fits)
-        print(remainder)
-        step = lcm(schedule.interval for schedule in fits)
-        t %= step
-        print(step)
-
-
-print(t % step)
+moments = (
+    (match - schedule.offset for match in (set(v + schedule.offset for v in t_options) & set(range(0, cycle_length + 1, schedule.interval)))) for schedule in schedules)
+print(min(it_intersection(moments)))
