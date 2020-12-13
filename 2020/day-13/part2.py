@@ -3,7 +3,7 @@ from collections import namedtuple, Counter, defaultdict
 from itertools import chain
 from math import ceil, gcd
 
-BusSchedule = namedtuple("BusSchedule", ['offset', 'interval'])
+BusSchedule = namedtuple("BusSchedule", ["offset", "interval"])
 
 
 def prime_factors(val):
@@ -47,21 +47,9 @@ def is_schedule_aligned(schedule, t, alignment):
     return (t + schedule.offset) % schedule.interval == 0
 
 
-def next_aligned_time(schedule, alignment, start=0):
-    # Make sure start is aligned with this schedule
-    start = int(ceil(start / schedule.interval)) * schedule.interval
-    for t in count(start=start, step=schedule.interval):
-        if is_schedule_aligned(schedule, t, alignment):
-            return t - schedule.offset
-
-
 def find_next_alignment(target, start, step, alignment):
     if gcd(step, target.interval) != 1:
         raise Exception("Intervals are not relatively prime")
-    if target.interval > step:
-        step *= int(ceil(target.interval / step))
-    if target.interval > step:
-        raise Exception("Step is not sufficiently large")
     for t in range(start, start + step * (target.interval + 1) + 1, step):
         if is_schedule_aligned(target, t, alignment):
             return t
@@ -73,7 +61,7 @@ def find_soonest_alignment(ids):
     schedules = [
         BusSchedule(offset=offset, interval=int(interval))
         for offset, interval in enumerate(ids)
-        if interval != 'x'
+        if interval != "x"
     ]
 
     alignment = schedules[0].interval
@@ -100,18 +88,18 @@ def find_soonest_alignment(ids):
 assert lcm([3, 9]) == 9
 assert lcm([3, 5]) == 15
 assert lcm([4, 78, 43, 13, 8, 25]) == 335400
-assert find_soonest_alignment('7,13,x,x,59,x,31,19'.split(',')) == 1068781
-assert find_soonest_alignment('17,x,13,19'.split(',')) == 3417
-assert find_soonest_alignment('67,7,59,61'.split(',')) == 754018
-assert find_soonest_alignment('67,x,7,59,61'.split(',')) == 779210
-assert find_soonest_alignment('67,7,x,59,61'.split(',')) == 1261476
-assert find_soonest_alignment('1789,37,47,1889'.split(',')) == 1202161486
+assert find_soonest_alignment("7,13,x,x,59,x,31,19".split(",")) == 1068781
+assert find_soonest_alignment("17,x,13,19".split(",")) == 3417
+assert find_soonest_alignment("67,7,59,61".split(",")) == 754018
+assert find_soonest_alignment("67,x,7,59,61".split(",")) == 779210
+assert find_soonest_alignment("67,7,x,59,61".split(",")) == 1261476
+assert find_soonest_alignment("1789,37,47,1889".split(",")) == 1202161486
 
 print("Tests passed, running on input...")
 
 with open("./data.txt", "r") as fp:
     _, bus_ids = fp.readlines()
 
-ids = bus_ids.split(',')
+ids = bus_ids.split(",")
 
 print(find_soonest_alignment(ids))
