@@ -17,8 +17,8 @@ def product(it):
 
 
 def buses_arrive_consecutive_minutes(t, bus_pairs):
-    for id, index in bus_ids:
-        if wait_next_arrival(t, id) != index:
+    for offset, interval in bus_ids:
+        if wait_next_arrival(t, interval) != offset:
             return False
     return True
 
@@ -26,10 +26,11 @@ def buses_arrive_consecutive_minutes(t, bus_pairs):
 with open("./data.txt", "r") as fp:
     _, bus_ids = fp.readlines()
 
-    bus_ids = [(int(id), index) for index, id in enumerate(bus_ids.split(',')) if id != 'x']
-    step = bus_ids[0][1]
+    bus_ids = [(offset, int(interval)) for offset, interval in enumerate(bus_ids.split(',')) if interval != 'x']
 
-    for t in count(start=step, step=step):
+    start, step = max(bus_ids, key=lambda bus_id: bus_id[1])
+
+    for t in count(start=start, step=step):
         if buses_arrive_consecutive_minutes(t, bus_ids):
             print(t)
             break
