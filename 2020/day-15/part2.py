@@ -14,11 +14,7 @@ def next_val(state):
 def make_move(prev, move):
     history = prev.history.copy()
     history[prev.move] = prev.round
-    return State(
-        history=history,
-        move=move,
-        round=prev.round+1
-    )
+    return State(history=history, move=move, round=prev.round + 1)
 
 
 def next_state(state):
@@ -37,9 +33,10 @@ def memory_game(seed):
         yield state.move
         state = next_state(state)
 
+
 def nth(iterable, n, default=None):
     "Returns the nth item or a default value"
-    v = next(islice(iterable, n-1, None), default)
+    v = next(islice(iterable, n - 1, None), default)
     return v
 
 
@@ -66,6 +63,6 @@ assert (
 
 
 with open("./data.txt", "r") as fp:
-    seed = (int(v) for v in fp.read().split(','))
+    seed = (int(v) for v in fp.read().split(","))
     game = memory_game(seed)
     print(nth(game, 30000000))
