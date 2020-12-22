@@ -68,4 +68,4 @@ assert (
 with open("./data.txt", "r") as fp:
     seed = (int(v) for v in fp.read().split(','))
     game = memory_game(seed)
-    print(nth(game, 2020))
+    print(nth(game, 30000000))
