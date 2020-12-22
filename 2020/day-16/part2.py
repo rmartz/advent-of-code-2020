@@ -1,4 +1,4 @@
-from itertools import groupby, permutations
+from itertools import groupby
 from functools import reduce
 
 
