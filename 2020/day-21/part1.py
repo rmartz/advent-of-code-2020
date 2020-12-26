@@ -2,12 +2,9 @@ from collections import defaultdict
 
 
 def parse_input_line(line):
-    ingredients, allergens = line.strip(')').split(' (contains ')
+    ingredients, allergens = line.strip(")").split(" (contains ")
 
-    return (
-        set(ingredients.split(' ')),
-        set(allergens.split(', '))
-    )
+    return (set(ingredients.split(" ")), set(allergens.split(", ")))
 
 
 def find_possible_allergens(input):
@@ -32,8 +29,11 @@ def find_possible_allergens(input):
     allergic_ingredients = set.union(*allergen_possibilities.values())
 
     # Sum all of the foods that each known non-allergen ingredient has been in
-    return sum(count for ingredient, count in ingredient_food_count.items()
-               if ingredient not in allergic_ingredients)
+    return sum(
+        count
+        for ingredient, count in ingredient_food_count.items()
+        if ingredient not in allergic_ingredients
+    )
 
 
 with open("./data.txt", "r") as fp:
