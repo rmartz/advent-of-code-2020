@@ -33,19 +33,21 @@ def add_vectors(a: Vector, b: Vector) -> Vector:
     return Vector(x=a.x + b.x, y=a.y + b.y)
 
 
+NEIGHBOR_OFFSETS = {
+    Direction.East: lambda odd_row: Vector(x=1, y=0),
+    Direction.West: lambda odd_row: Vector(x=-1, y=0),
+    Direction.Northeast: lambda odd_row: Vector(x=(1 - odd_row), y=-1),
+    Direction.Northwest: lambda odd_row: Vector(x=-odd_row, y=-1),
+    Direction.Southeast: lambda odd_row: Vector(x=(1 - odd_row), y=1),
+    Direction.Southwest: lambda odd_row: Vector(x=-odd_row, y=1),
+}
+
+
 def find_neighbor(tile, direction):
     odd_row = tile.y % 2
-    offsets = {
-        Direction.East: Vector(x=1, y=0),
-        Direction.West: Vector(x=-1, y=0),
-        Direction.Northeast: Vector(x=(1 - odd_row), y=-1),
-        Direction.Northwest: Vector(x=-odd_row, y=-1),
-        Direction.Southeast: Vector(x=(1 - odd_row), y=1),
-        Direction.Southwest: Vector(x=-odd_row, y=1),
-    }
 
-    offset = offsets[direction]
-    return add_vectors(tile, offset)
+    offset_lambda = NEIGHBOR_OFFSETS[direction]
+    return add_vectors(tile, offset_lambda(odd_row))
 
 
 assert find_neighbor(Vector(x=0, y=0), Direction.East) == Vector(x=1, y=0)
