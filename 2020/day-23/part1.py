@@ -1,4 +1,3 @@
-from operator import itemgetter
 from itertools import islice
 
 
@@ -23,13 +22,16 @@ def circular_center_on_pos(lst, pos):
 
 
 def find_destination_cup(lst, start_val):
-    positions = list(enumerate(lst))
-    try:
-        smaller_vals = [item for item in positions if item[1] < start_val]
-        pos, _ = max(smaller_vals, key=itemgetter(1))
-    except ValueError:
-        pos, _ = max(positions, key=itemgetter(1))
-    return pos
+    max_pos = next_pos = max_val = next_val = None
+    for pos, val in enumerate(lst):
+        if val < start_val and (next_val is None or val > next_val):
+            next_pos = pos
+            next_val = val
+        elif next_pos is None and (max_val is None or val > max_val):
+            max_pos = pos
+            max_val = val
+
+    return next_pos if next_pos is not None else max_pos
 
 
 def shuffle_cups(lst):
