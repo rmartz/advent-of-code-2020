@@ -50,7 +50,7 @@ def iterate_circular_linked_list(head: LinkedListNode):
 
 def linked_list_extract(head, n):
     extraction = extraction_tail = head.next
-    for i in range(n-1):
+    for i in range(n - 1):
         extraction_tail = extraction_tail.next
     head.next = extraction_tail.next
     extraction_tail.next = None
@@ -64,7 +64,9 @@ def linked_list_insert(head, insert):
 
 
 def find_destination_cup(lookup, picked_up, start_val, max_value):
-    picked_up_values = set([node.value for node in iterate_circular_linked_list(picked_up)])
+    picked_up_values = set(
+        [node.value for node in iterate_circular_linked_list(picked_up)]
+    )
 
     # Our list is 1 based, so subtract two then mod then add 1, so 0 wraps to max_value
     lookup_val = (start_val - 2) % max_value + 1
