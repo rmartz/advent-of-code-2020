@@ -1,75 +1,102 @@
-from operator import itemgetter
-from itertools import islice
-from functools import reduce
+from itertools import islice, takewhile
 
 
-def product(it):
-    return reduce(lambda val, acc: val * acc, it, 1)
+class LinkedListNode(object):
+    next = None
+    value = None
+
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next
+
+    def __repr__(self):
+        next = None if self.next is None else self.next.value
+        return f"<LLNode {self.value} {next}>"
 
 
-def circular_extract(lst, start, stop):
-    start %= len(lst)
-    stop %= len(lst)
-    if stop < start:
-        # We loop around, and want to grab the inside of the list
-        return lst[stop:start], lst[start:] + lst[:stop]
-    return lst[:start] + lst[stop:], lst[start:stop]
+def create_circular_linked_list(vals):
+    nodes = (LinkedListNode(val) for val in vals)
+    head = prev = next(nodes)
+    for node in nodes:
+        prev.next = node
+        yield prev
+        prev = node
+    node.next = head
+    yield node
 
 
-def circular_insert(lst, pos, vals):
-    pos %= len(lst)
-
-    return lst[:pos] + vals + lst[pos:]
-
-
-def circular_center_on_pos(lst, pos):
-    # Re-adjust the list so that pos is index 0
-    return lst[pos:] + lst[:pos]
+def iterate_linked_list(head: LinkedListNode):
+    node = head
+    while node:
+        yield node
+        node = node.next
 
 
-def find_destination_cup(lst, start_val):
-    positions = list(enumerate(lst))
-    try:
-        smaller_vals = [item for item in positions if item[1] < start_val]
-        pos, _ = max(smaller_vals, key=itemgetter(1))
-    except ValueError:
-        pos, _ = max(positions, key=itemgetter(1))
-    return pos
+def find_tail(head):
+    node = head
+    while node.next:
+        if node.next == head:
+            raise Exception("Circular list detected")
+        node = node.next
+    return node
 
 
-def shuffle_cups(lst):
-    pos = 0
+def iterate_circular_linked_list(head: LinkedListNode):
+    yield head
+    # iterate_linked_list will cycle a circular list infinitely, so stop when we hit head again
+    it = iterate_linked_list(head.next)
+    yield from takewhile(lambda node: node != head, it)
+
+
+def linked_list_extract(head, n):
+    extraction = extraction_tail = head.next
+    for i in range(n-1):
+        extraction_tail = extraction_tail.next
+    head.next = extraction_tail.next
+    extraction_tail.next = None
+    return extraction
+
+
+def linked_list_insert(head, insert):
+    tail = head.next
+    head.next = insert
+    find_tail(insert).next = tail
+
+
+def find_destination_cup(lookup, picked_up, start_val, max_value):
+    picked_up_values = set([node.value for node in iterate_circular_linked_list(picked_up)])
+
+    # Our list is 1 based, so subtract two then mod then add 1, so 0 wraps to max_value
+    lookup_val = (start_val - 2) % max_value + 1
+    while lookup_val in picked_up_values:
+        lookup_val = (lookup_val - 2) % max_value + 1
+
+    return lookup[lookup_val]
+
+
+def shuffle_cups(vals):
+    nodes = create_circular_linked_list(vals)
+    lookup = {node.value: node for node in nodes}
+    max_value = max(vals)
+    current = lookup[vals[0]]
+
     while True:
-        yield lst
+        yield lookup
 
-        pos %= len(lst)
-        start_val = lst[pos]
+        picked_up = linked_list_extract(current, 3)
+        destination = find_destination_cup(lookup, picked_up, current.value, max_value)
 
-        lst, picked_up = circular_extract(lst, pos + 1, pos + 4)
-        destination = find_destination_cup(lst, start_val)
+        linked_list_insert(destination, picked_up)
 
-        lst = circular_insert(lst, destination + 1, picked_up)
-
-        pos = lst.index(start_val) + 1
+        current = lookup[current.value].next
 
 
-def expand_cups(lst):
-    return lst + list(range(max(lst)+1, 1000001))
-
-
-def find_adjacent_cups(lst):
-    pos = lst.index(1)
-    return (
-        lst[(pos + 1) % len(lst)],
-        lst[(pos + 2) % len(lst)]
-    )
-
-
-def progress_printer(it, interval):
-    for i, v in enumerate(it):
-        if i % interval == 0:
-            print(i)
-        yield v
+def render_cups(lookup):
+    # Center on 1
+    center = lookup[1]
+    it = iterate_circular_linked_list(center)
+    next(it)
+    return "".join(str(node.value) for node in it)
 
 
 def nth(iterable, n, default=None):
@@ -78,13 +105,12 @@ def nth(iterable, n, default=None):
     return v
 
 
-assert circular_extract([1, 2, 3], 1, 2) == ([1, 3], [2])
-assert circular_extract([1, 2, 3], 2, 4) == ([2], [3, 1])
+def expand_cups(lst):
+    return lst + list(range(max(lst)+1, 1000001))
 
-assert circular_insert([1, 2], 1, [99]) == [1, 99, 2]
 
-assert find_destination_cup([1, 2, 3, 4], 2) == 0
-assert find_destination_cup([1, 2, 3, 4], 0) == 3
+assert render_cups(nth(shuffle_cups([3, 8, 9, 1, 2, 5, 4, 6, 7]), 10)) == "92658374"
+assert render_cups(nth(shuffle_cups([3, 8, 9, 1, 2, 5, 4, 6, 7]), 100)) == "67384529"
 
 
 with open("./data.txt", "r") as fp:
@@ -92,9 +118,5 @@ with open("./data.txt", "r") as fp:
 
 vals = expand_cups(vals)
 
-states = progress_printer(shuffle_cups(vals), 1000)
-final_state = nth(states, 10000000)
-
-target_cups = find_adjacent_cups(final_state)
-print(target_cups)
-print(product(target_cups))
+final_state = nth(shuffle_cups(vals), 10000000)
+print(final_state[1].next.value * final_state[1].next.next.value)
